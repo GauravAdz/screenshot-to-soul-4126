@@ -14,6 +14,7 @@ import { MicButton } from "../voice/MicButton";
 import { AnswerView } from "./AnswerView";
 import { ModelStatus } from "./ModelStatus";
 import { useLocalModel } from "./useLocalModel";
+import { OllamaSetup } from "./OllamaSetup";
 
 interface Msg {
   id: string;
@@ -37,7 +38,7 @@ const STARTERS = [
 ];
 
 export function ChatPanel({ report, request }: { report: LabReport; request?: ChatRequest | null | undefined }) {
-  const { state, adapter, ready, load } = useLocalModel();
+  const { state, adapter, ready, load, usingOllama } = useLocalModel();
   const settings = useSettings();
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [loadedFor, setLoadedFor] = useState<string | null>(null);
@@ -95,7 +96,8 @@ export function ChatPanel({ report, request }: { report: LabReport; request?: Ch
   return (
     <div className="flex h-full flex-col">
       <div className="space-y-2 border-b border-border p-4">
-        <ModelStatus state={state} onLoad={load} downloadSize={adapter?.downloadSize} />
+        <ModelStatus state={state} onLoad={load} downloadSize={adapter?.downloadSize} label={adapter?.label} ollama={usingOllama} />
+        <OllamaSetup />
         {settings.voice !== "off" && (
           <label className="flex items-center gap-2 text-xs text-muted-foreground">
             <input type="checkbox" checked={settings.autoSpeakAnswers} onChange={(e) => updateSettings({ autoSpeakAnswers: e.target.checked })} />
