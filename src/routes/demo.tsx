@@ -26,7 +26,7 @@ const STEPS = [
   { t: "Explain an out-of-range result", d: "On the Hemoglobin or LDL card, press “Explain this result”." },
   { t: "Ask a follow-up by chat or voice", d: "Type or use the microphone, e.g. “How does this compare with my previous report?”." },
   { t: "See the evidence", d: "Open “Sources” under the answer: report rows with page numbers and reference links." },
-  { t: "Grounded answer from local AI", d: "Start Ollama on your laptop with medgemma1.5:4b. Without it, the answer comes straight from the report." },
+  { t: "Grounded answer from local AI", d: "Start Ollama on your laptop with gemma4:e2b. Without it, the answer comes straight from the report." },
   { t: "Narrate the answer", d: "Press the speaker on an answer or card. Kokoro speaks on this device." },
   { t: "Confirm data stays on-device", d: "Open the Privacy page: storage, services in use and model downloads are shown live." },
 ];
