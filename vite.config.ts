@@ -5,11 +5,12 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
   vite: {
     // Use kokoro-js's self-contained browser build (its default build's phonemizer breaks under Vite).
-    resolve: { alias: [{ find: /^kokoro-js$/, replacement: "kokoro-js/dist/kokoro.web.js" }] },
+    resolve: { alias: [{ find: /^kokoro-js$/, replacement: fileURLToPath(new URL("./node_modules/kokoro-js/dist/kokoro.web.js", import.meta.url)) }] },
     optimizeDeps: { exclude: ["kokoro-js", "phonemizer"] },
     worker: { format: "es" },
   },
