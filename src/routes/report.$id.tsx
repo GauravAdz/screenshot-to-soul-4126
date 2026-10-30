@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Download, Info, Loader2 } from "lucide-react";
+import { Download, Info, Loader2, MessageCircle } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
+import { ChatPanel } from "@/components/lab/chat/ChatPanel";
 import { Button } from "@/components/ui/button";
 import { ResultCard, STATUS_STYLE } from "@/components/lab/ResultCard";
 import { classify, STATUS_LABEL } from "@/lib/lab/engine";
@@ -55,7 +57,21 @@ function ReportPage() {
           <p className="text-sm text-muted-foreground">{report.reportDate ? `Report date ${report.reportDate}` : "Report date not found"}</p>
           <h1 className="mt-1 text-3xl font-semibold md:text-4xl">{report.title}</h1>
         </div>
-        <Button variant="outline" className="rounded-full" onClick={() => exportReport(report)}><Download className="h-4 w-4" /> Export</Button>
+        <div className="flex flex-wrap gap-2">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button className="rounded-full bg-gradient-brand shadow-soft"><MessageCircle className="h-4 w-4" /> Ask about this report</Button>
+            </SheetTrigger>
+            <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
+              <SheetHeader className="border-b border-border p-4">
+                <SheetTitle>Ask about your results</SheetTitle>
+                <SheetDescription>Facts come only from your report. Everything stays on this device.</SheetDescription>
+              </SheetHeader>
+              <div className="min-h-0 flex-1"><ChatPanel report={report} /></div>
+            </SheetContent>
+          </Sheet>
+          <Button variant="outline" className="rounded-full" onClick={() => exportReport(report)}><Download className="h-4 w-4" /> Export</Button>
+        </div>
       </div>
 
       <div className="mt-6 flex h-3 overflow-hidden rounded-full bg-muted" aria-hidden>
