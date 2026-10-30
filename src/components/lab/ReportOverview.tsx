@@ -22,10 +22,8 @@ export function ReportOverview({ report, onJump }: { report: LabReport; onJump: 
     <section aria-labelledby="overview-h" className="fade-up rounded-3xl border border-border bg-card p-5 shadow-soft md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="max-w-2xl">
-          <h2 id="overview-h" className="text-2xl font-semibold">Your report at a glance</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {c.total} results, compared only with the ranges printed by your lab. This isn't a health score — talk to your clinician about what it means for you.
-          </p>
+          <h2 id="overview-h" className="text-2xl font-semibold">At a glance</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{c.total} results vs. your lab's ranges</p>
         </div>
         <SpeakButton text={overviewNarration(report)} label="Report overview" className="rounded-full border border-border">Listen</SpeakButton>
       </div>
@@ -41,8 +39,8 @@ export function ReportOverview({ report, onJump }: { report: LabReport; onJump: 
 
       {critical.length > 0 && (
         <div role="alert" className="mt-4 rounded-2xl border border-destructive/50 bg-destructive/10 p-4 text-sm">
-          <p className="flex items-center gap-2 font-semibold text-destructive"><Siren className="h-4 w-4" /> Your lab marked {critical.length} result{critical.length > 1 ? "s" : ""} as critical</p>
-          <p className="mt-1 text-foreground">This label comes from the lab, not from this app. Follow the instructions from your lab or clinician; if you feel unwell, seek medical help.</p>
+          <p className="flex items-center gap-2 font-semibold text-destructive"><Siren className="h-4 w-4" /> {critical.length} marked critical by your lab</p>
+          <p className="mt-1 text-foreground">Follow your clinician's instructions.</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {critical.map((r) => <button key={r.id} onClick={() => onJump(r.id)} className="rounded-full bg-card px-2.5 py-1 text-xs font-medium hover:underline">{r.name}: {r.valueRaw} {r.unit}</button>)}
           </div>

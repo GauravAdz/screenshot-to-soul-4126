@@ -54,7 +54,7 @@ export function ResultCard({ r, index = 0, trend, onExplain, onFollowUp }: Props
 
       {r.critical && (
         <p className="mt-2 flex items-center gap-1.5 rounded-lg bg-destructive/10 px-2.5 py-1.5 text-xs font-semibold text-destructive">
-          <Siren className="h-3.5 w-3.5" /> Marked critical by the lab — follow your lab's or clinician's instructions.
+          <Siren className="h-3.5 w-3.5" /> Critical (lab flag)
         </p>
       )}
 
