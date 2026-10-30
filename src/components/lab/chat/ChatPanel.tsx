@@ -1,3 +1,4 @@
+import { cleanModelText } from "@/lib/ai/validate";
 import { useEffect, useRef, useState } from "react";
 import { Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -125,7 +126,7 @@ export function ChatPanel({ report, request }: { report: LabReport; request?: Ch
               {m.answer && streaming?.id !== m.id && (
                 <SpeakButton text={answerNarration(m.answer)} label="Answer" className="absolute right-2 top-2 h-7 w-7 rounded-full" />
               )}
-              {m.answer && <AnswerView a={m.answer} streaming={streaming?.id === m.id ? streaming.text : undefined} onAsk={(q) => ask(q)} />}
+              {m.answer && <AnswerView a={m.answer} streaming={streaming?.id === m.id ? cleanModelText(streaming.text) : undefined} onAsk={(q) => ask(q)} />}
             </div>
           ),
         )}
