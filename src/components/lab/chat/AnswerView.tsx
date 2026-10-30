@@ -29,7 +29,7 @@ export function AnswerView({ a, streaming, onAsk }: { a: Answer; streaming?: str
         </Section>
       )}
 
-      {(a.meaning.length > 0 || streaming) && (
+      {(a.meaning.length > 0 || streaming !== undefined) && (
         <Section title="What it means · general information" icon={BookOpen}>
           {streaming !== undefined && a.generatedBy === "library" ? (
             <p className="italic text-muted-foreground">{streaming || "Writing a plain-language explanation…"}</p>
