@@ -21,7 +21,8 @@ const QUAL_RE = /^([A-Za-z][A-Za-z0-9 ,()/\-.']*?)\s*[:\s]\s*(positive|negative|
 
 const SKIP = /^(page|patient|name|dob|date|test|result|reference|units?|lab|specimen|collected|reported|physician|doctor|sex|age|id|mrn|address|phone)\b/i;
 
-export const toNum = (s: string) => {
+export const toNum = (s: string | undefined) => {
+  if (s === undefined) return null;
   const n = Number(s.replace(",", "."));
   return Number.isFinite(n) ? n : null;
 };
