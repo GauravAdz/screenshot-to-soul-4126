@@ -14,3 +14,6 @@
 - Q&A pipeline (src/lib/ai): retrieval.ts does exact structured lookup → answer.ts builds a deterministic, sourced Answer → an optional LocalModelAdapter (model/) may only reword "What it means", and validate.ts rejects new numbers/diagnoses. Why: every patient fact must trace to the report; the model is never the source of truth.
 - Local models run in a Web Worker behind model/netguard.ts (GET-only allowlist to model hosts); never add a hosted LLM fallback. Why: prompts and results must stay on-device.
 - Educational content lives in src/lib/ai/knowledge.json with per-entry sources and licenses. Why: auditable, open-source friendly.
+- Speech (src/lib/speech): Kokoro TTS and Whisper STT run in Web Workers behind netguard; Kokoro imports kokoro-js's self-contained web build because the bundled phonemizer breaks under Vite. Why: on-device default, verified working.
+- Single opt-in exception to on-device processing: ElevenLabs narration via elevenlabs.functions.ts, only with stored consent, ≤600 chars of narration, no logging. Never send reports, full results or chat history. Why: user-requested premium voice with explicit consent.
+- Critical flags come only from lab markers (HH/LL, critical, panic, !!) in parser.ts; the app never derives urgency itself. Why: avoid invented emergency classifications.
