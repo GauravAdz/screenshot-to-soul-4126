@@ -110,11 +110,11 @@ export function looksLikeResult(text: string) {
 export function findDate(lines: ExtractedLine[]): string | null {
   for (const l of lines) {
     const m = l.text.match(/\b(\d{4}-\d{2}-\d{2}|\d{1,2}[./]\d{1,2}[./]\d{2,4})\b/);
-    if (m && /date|collected|reported/i.test(l.text)) return m[1];
+    if (m && /date|collected|reported/i.test(l.text)) return m[1] ?? null;
   }
   for (const l of lines) {
     const m = l.text.match(/\b(\d{4}-\d{2}-\d{2})\b/);
-    if (m) return m[1];
+    if (m) return m[1] ?? null;
   }
   return null;
 }

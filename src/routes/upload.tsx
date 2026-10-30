@@ -12,7 +12,7 @@ import type { ExtractedLine, LabResult } from "@/lib/lab/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/upload")({
-  validateSearch: (s: Record<string, unknown>): { sample?: boolean } => (s.sample ? { sample: true } : {}),
+  validateSearch: (s: Record<string, unknown>): { sample?: boolean } => (s["sample"] ? { sample: true } : {}),
   head: () => ({
     meta: [
       { title: "Upload a lab report — Clearlab" },
