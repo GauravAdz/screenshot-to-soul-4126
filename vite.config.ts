@@ -8,7 +8,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   vite: {
-    // kokoro-js/phonemizer embed eSpeak data that breaks when pre-bundled into a worker.
+    // Use kokoro-js's self-contained browser build (its default build's phonemizer breaks under Vite).
+    resolve: { alias: [{ find: /^kokoro-js$/, replacement: "kokoro-js/dist/kokoro.web.js" }] },
     optimizeDeps: { exclude: ["kokoro-js", "phonemizer"] },
     worker: { format: "es" },
   },
