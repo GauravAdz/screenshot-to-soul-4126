@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ShieldCheck, Upload, Eye, HardDrive, LineChart } from "lucide-react";
+import { ShieldCheck, Upload, Eye, Ruler } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LandingSketch } from "@/components/lab/LandingSketch";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -16,48 +17,63 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const FEATURES = [
-  { icon: HardDrive, t: "Stays on your device", d: "Reports are read, explained and spoken in your browser and stored encrypted locally. Nothing is uploaded." },
-  { icon: Eye, t: "You verify every value", d: "Check and correct what we read before anything is explained." },
-  { icon: LineChart, t: "Clear, honest results", d: "See where each value sits in your lab's own range — and what we're unsure about." },
+const NOTES = [
+  { icon: ShieldCheck, t: "Stays on your device", tilt: "-rotate-1" },
+  { icon: Eye, t: "You check the numbers", tilt: "rotate-[0.8deg]" },
+  { icon: Ruler, t: "Ranges from your lab", tilt: "-rotate-[0.6deg]" },
 ];
+
+function Squiggle({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden className={className} fill="none">
+      <path d="M3 8 C30 2 60 11 95 6 C130 1 165 10 197 5" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 function Index() {
   return (
-    <main className="bg-hero">
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-20 text-center md:pt-28">
-        <span className="fade-up inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground shadow-soft">
-          <ShieldCheck className="h-3.5 w-3.5 text-status-in" /> Private by design — no uploads, no accounts
+    <main className="paper-grid">
+      <section className="mx-auto max-w-3xl px-4 pt-16 text-center md:pt-24">
+        <span className="sketch-chip fade-up inline-flex -rotate-1 items-center gap-2 px-3 py-1 text-xs text-muted-foreground">
+          <ShieldCheck className="h-3.5 w-3.5 text-status-in" /> Private by design
         </span>
-        <h1 className="fade-up mx-auto mt-6 max-w-3xl text-4xl font-semibold leading-[1.05] md:text-6xl">
-          Understand your lab reports in <em className="text-primary">simple language.</em>
+
+        <h1 className="fade-up mt-7 text-4xl font-semibold leading-[1.1] md:text-6xl">
+          Your lab reports,{" "}
+          <span className="relative inline-block text-primary">
+            in plain words
+            <Squiggle className="absolute -bottom-2.5 left-0 h-3 w-full text-primary" />
+          </span>
         </h1>
-        <p className="fade-up mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
-          Drop in a PDF or photo of your results. Clearlab turns rows of numbers into clear, friendly cards you can actually read.
+
+        <p className="fade-up mx-auto mt-7 max-w-sm text-base text-muted-foreground md:text-lg">
+          Drop in a PDF or a photo. Nothing leaves your device.
         </p>
-        <div className="fade-up mt-8 flex flex-wrap justify-center gap-3">
-          <Button asChild size="lg" className="rounded-full bg-gradient-brand px-7 shadow-soft">
-            <Link to="/upload"><Upload className="h-4 w-4" /> Upload report</Link>
-          </Button>
-          <Button asChild size="lg" variant="outline" className="rounded-full">
-            <Link to="/upload" search={{ sample: true }}>Try a sample report</Link>
-          </Button>
-          <Button asChild size="lg" variant="ghost" className="rounded-full">
-            <Link to="/demo">Guided demo</Link>
+
+        <div className="fade-up mt-9 flex justify-center">
+          <Button
+            asChild
+            size="lg"
+            className="rounded-[1.05rem_0.8rem_1.15rem_0.85rem] border-[1.5px] border-foreground/25 bg-card px-8 text-foreground shadow-sketch transition-transform hover:-translate-y-0.5 hover:bg-secondary"
+          >
+            <Link to="/upload">
+              <Upload className="h-4 w-4" /> Upload report
+            </Link>
           </Button>
         </div>
       </section>
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-24 md:grid-cols-3">
-        {FEATURES.map((f) => (
-          <div key={f.t} className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <f.icon className="h-6 w-6 text-primary" />
-            <h2 className="mt-4 text-xl font-semibold">{f.t}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{f.d}</p>
-          </div>
+
+      <section className="mx-auto max-w-2xl px-4 pt-10 md:pt-14">
+        <LandingSketch className="fade-up mx-auto w-full max-w-xl" />
+      </section>
+
+      <section className="mx-auto flex max-w-2xl flex-wrap items-center justify-center gap-3 px-4 pb-10 pt-4">
+        {NOTES.map((n) => (
+          <span key={n.t} className={`sketch-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm ${n.tilt}`}>
+            <n.icon className="h-4 w-4 text-primary" /> {n.t}
+          </span>
         ))}
-        <p className="col-span-full mt-4 text-center text-xs text-muted-foreground">
-          Clearlab explains what tests measure. It does not diagnose conditions or replace advice from your clinician.
-        </p>
       </section>
     </main>
   );
