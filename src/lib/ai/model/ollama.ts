@@ -58,7 +58,7 @@ export function createOllamaAdapter(url: string, model: string): LocalModelAdapt
       const res = await fetch(`${base(url)}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model, messages, stream: true, options: { temperature: 0.2 } }),
+        body: JSON.stringify({ model, messages, stream: true, think: false, options: { temperature: 0.1, top_p: 0.8, repeat_penalty: 1.15, num_predict: 220, num_ctx: 4096 } }),
       });
       if (!res.ok || !res.body) throw new Error(`Ollama error (${res.status}).`);
       const reader = res.body.getReader();
