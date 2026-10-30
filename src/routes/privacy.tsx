@@ -31,7 +31,7 @@ export const Route = createFileRoute("/privacy")({
 });
 
 const MODELS = [
-  { name: "Gemma 4 E2B (q4f16)", purpose: "Optional wording of explanations", size: "≈ 3 GB", host: "huggingface.co", license: "Gemma license / Apache-2.0 (ONNX build)" },
+  { name: "Ollama (your model)", purpose: "Wording answers and reading scanned pages", size: "on your laptop", host: "localhost only", license: "depends on model" },
   { name: "Kokoro-82M", purpose: "On-device voice", size: "≈ 90–330 MB", host: "huggingface.co", license: "Apache-2.0" },
   { name: "Whisper base", purpose: "On-device speech recognition", size: "≈ 80–200 MB", host: "huggingface.co", license: "MIT" },
   { name: "Tesseract English data", purpose: "Reading scanned images", size: "≈ 10–20 MB", host: "cdn.jsdelivr.net", license: "Apache-2.0" },
@@ -108,7 +108,7 @@ function PrivacyPage() {
     setOffline(out);
   };
 
-  const gemma = model.phase === "ready" ? "Gemma 4 is loaded and running on this device." : model.phase === "loading" ? "Gemma 4 is downloading." : model.phase === "unsupported" ? "Gemma 4 isn't supported on this device; answers come from the reference library." : "Gemma 4 is off; answers come from the reference library on this device.";
+  const gemma = model.phase === "ready" ? "Ollama is connected on this laptop." : "Ollama isn't connected; answers come straight from your report.";
 
   return (
     <main className="mx-auto max-w-4xl space-y-8 px-4 py-10">

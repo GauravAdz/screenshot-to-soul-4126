@@ -1,69 +1,41 @@
 import { useCallback, useEffect, useState } from "react";
-import type { LoadProgress, LocalModelAdapter, SupportReport } from "@/lib/ai/model/types";
+import type { LoadProgress, LocalModelAdapter } from "@/lib/ai/model/types";
+import { createOllamaAdapter } from "@/lib/ai/model/ollama";
 import { useSettings } from "@/lib/settings";
 
 export type ModelState =
   | { phase: "checking" }
-  | { phase: "unsupported"; support: SupportReport }
-  | { phase: "idle"; support: SupportReport }
   | { phase: "loading"; progress: LoadProgress }
   | { phase: "ready" }
   | { phase: "error"; message: string };
 
-// One adapter per choice per page session so models stay loaded across reports.
-const adapters = new Map<string, Promise<LocalModelAdapter>>();
-function getAdapter(key: string, url: string, model: string) {
-  let p = adapters.get(key);
-  if (!p) {
-    p = key === "gemma"
-      ? import("@/lib/ai/model/gemma").then((m) => m.createGemmaAdapter())
-      : import("@/lib/ai/model/ollama").then((m) => m.createOllamaAdapter(url, model));
-    adapters.set(key, p);
-  }
-  return p;
+// Ollama on this laptop is the only model. One adapter per url+model per page session.
+const adapters = new Map<string, LocalModelAdapter>();
+function getAdapter(url: string, model: string) {
+  const key = `${url}|${model}`;
+  if (!adapters.has(key)) adapters.set(key, createOllamaAdapter(url, model));
+  return adapters.get(key)!;
 }
 
 export function useLocalModel() {
-  const s = useSettings();
-  const { enabled, url, model } = s.ollama;
-  const key = enabled ? `ollama|${url}|${model}` : "gemma";
-  const [state, setState] = useState<ModelState>({ phase: "checking" });
-  const [adapter, setAdapter] = useState<LocalModelAdapter | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setState({ phase: "checking" });
-    setAdapter(null);
-    getAdapter(key, url, model).then(async (a) => {
-      if (cancelled) return;
-      setAdapter(a);
-      if (a.isLoaded()) return setState({ phase: "ready" });
-      const support = await a.checkSupport();
-      if (cancelled) return;
-      if (!support.supported) return setState({ phase: "unsupported", support });
-      if (!enabled) return setState({ phase: "idle", support });
-      // Ollama is already on this computer, so connect right away.
-      setState({ phase: "loading", progress: { label: "Connecting to Ollama…", pct: null } });
-      try {
-        await a.load((progress) => !cancelled && setState({ phase: "loading", progress }));
-        if (!cancelled) setState({ phase: "ready" });
-      } catch (e) {
-        if (!cancelled) setState({ phase: "error", message: e instanceof Error ? e.message : "Could not connect to Ollama." });
-      }
-    });
-    return () => { cancelled = true; };
-  }, [key, url, model, enabled]);
+  const { url, model } = useSettings().ollama;
+  const adapter = getAdapter(url, model);
+  const [state, setState] = useState<ModelState>({ phase: adapter.isLoaded() ? "ready" : "checking" });
 
   const load = useCallback(async () => {
-    if (!adapter) return;
-    setState({ phase: "loading", progress: { label: "Starting…", pct: 0 } });
+    setState({ phase: "loading", progress: { label: "Connecting to Ollama…", pct: null } });
     try {
-      await adapter.load((progress) => setState({ phase: "loading", progress }));
+      await adapter.load(() => {});
       setState({ phase: "ready" });
     } catch (e) {
-      setState({ phase: "error", message: e instanceof Error ? e.message : "Could not load the model." });
+      setState({ phase: "error", message: e instanceof Error ? e.message : "Couldn't connect to Ollama." });
     }
   }, [adapter]);
 
-  return { state, adapter, ready: state.phase === "ready" && !!adapter, load, usingOllama: enabled };
+  useEffect(() => {
+    if (!adapter.isLoaded()) void load();
+    else setState({ phase: "ready" });
+  }, [adapter, load]);
+
+  return { state, adapter, ready: state.phase === "ready", load, usingOllama: true };
 }
