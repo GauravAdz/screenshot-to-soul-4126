@@ -11,3 +11,6 @@
 
 - Patient data never leaves the browser: extraction (pdfjs/tesseract, lazy-imported in src/lib/lab/extract.ts), storage (Dexie + AES-GCM in src/lib/lab/storage.ts) are client-only; no backend or hosted AI for report data. Why: privacy-first requirement.
 - Result status comes only from the deterministic engine in src/lib/lab/engine.ts using ranges printed on the report; never invent ranges. Tests in engine.test.ts.
+- Q&A pipeline (src/lib/ai): retrieval.ts does exact structured lookup → answer.ts builds a deterministic, sourced Answer → an optional LocalModelAdapter (model/) may only reword "What it means", and validate.ts rejects new numbers/diagnoses. Why: every patient fact must trace to the report; the model is never the source of truth.
+- Local models run in a Web Worker behind model/netguard.ts (GET-only allowlist to model hosts); never add a hosted LLM fallback. Why: prompts and results must stay on-device.
+- Educational content lives in src/lib/ai/knowledge.json with per-entry sources and licenses. Why: auditable, open-source friendly.
