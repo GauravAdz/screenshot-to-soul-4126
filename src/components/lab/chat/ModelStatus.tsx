@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { ModelState } from "./useLocalModel";
 
-export function ModelStatus({ state, onLoad, downloadSize }: { state: ModelState; onLoad: () => void; downloadSize?: string }) {
+export function ModelStatus({ state, onLoad, downloadSize }: { state: ModelState; onLoad: () => void; downloadSize?: string | undefined }) {
   const box = "rounded-xl border border-border bg-card p-3 text-xs";
   switch (state.phase) {
     case "checking":

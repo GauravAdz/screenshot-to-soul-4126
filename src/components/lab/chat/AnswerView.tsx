@@ -14,7 +14,7 @@ function Section({ title, icon: Icon, children, tone = "default" }: { title: str
   );
 }
 
-export function AnswerView({ a, streaming, onAsk }: { a: Answer; streaming?: string; onAsk: (q: string) => void }) {
+export function AnswerView({ a, streaming, onAsk }: { a: Answer; streaming?: string | undefined; onAsk: (q: string) => void }) {
   const [more, setMore] = useState(false);
   const [evidence, setEvidence] = useState(false);
   const hasMore = a.known.length + a.unknown.length + a.doctorQuestions.length > 0;

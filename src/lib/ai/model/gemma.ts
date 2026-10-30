@@ -9,7 +9,7 @@ export function createGemmaAdapter(): LocalModelAdapter {
   let worker: Worker | null = null;
   let loaded = false;
   let nextId = 1;
-  const pending = new Map<number, { resolve: (s: string) => void; reject: (e: Error) => void; onToken?: (t: string) => void }>();
+  const pending = new Map<number, { resolve: (s: string) => void; reject: (e: Error) => void; onToken?: ((t: string) => void) | undefined }>();
 
   const ensureWorker = () => {
     if (worker) return worker;
