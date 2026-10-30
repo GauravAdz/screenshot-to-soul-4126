@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/lab/SiteHeader";
 import { VoicePlayer } from "@/components/lab/voice/VoicePlayer";
+import { DISCLAIMER } from "@/lib/lab/disclaimer";
 import { useSettings } from "@/lib/settings";
 
 function NotFoundComponent() {
