@@ -84,8 +84,8 @@ export function rangePosition(r: LabResult): { lo: number; hi: number; v: number
 }
 
 export const STATUS_LABEL: Record<Status, string> = {
-  below: "Below Range",
-  within: "Within Range",
-  above: "Above Range",
-  unknown: "Unknown",
+  below: "Below lab range",
+  within: "Within lab range",
+  above: "Above lab range",
+  unknown: "Can't tell from this report",
 };
