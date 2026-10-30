@@ -9,9 +9,8 @@ export async function extractFile(file: File, onProgress: Progress): Promise<{ l
     return extractPdf(file, onProgress, notes);
   }
   if (/^image\/(png|jpe?g)$/.test(file.type)) {
-    onProgress("Reading image text (OCR)…", 10);
-    const lines = await ocr(file, 1, (p) => onProgress("Reading image text (OCR)…", 10 + p * 85));
-    notes.push("Text was read with OCR from an image. OCR can misread numbers, so please verify every value.");
+    onProgress("Reading the image…", 10);
+    const lines = await readImage(file, 1, notes, (p) => onProgress("Reading the image…", 10 + p * 85));
     return { lines, notes };
   }
   throw new Error("Unsupported file type. Please upload a PDF, PNG or JPEG.");
@@ -37,14 +36,13 @@ async function extractPdf(file: File, onProgress: Progress, notes: string[]) {
     }
     if (rows.size === 0) {
       // Scanned page: render and OCR locally.
-      notes.push(`Page ${p} had no text layer and was read with OCR. Please verify its values.`);
       const viewport = page.getViewport({ scale: 2 });
       const canvas = document.createElement("canvas");
       canvas.width = viewport.width;
       canvas.height = viewport.height;
       await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
       const blob: Blob = await new Promise((res) => canvas.toBlob((b) => res(b!), "image/png"));
-      lines.push(...(await ocr(blob, p, (x) => onProgress(`OCR on page ${p}…`, ((p - 1 + x) / doc.numPages) * 90))));
+      lines.push(...(await readImage(blob, p, notes, (x) => onProgress(`Reading page ${p}…`, ((p - 1 + x) / doc.numPages) * 90))));
       continue;
     }
     [...rows.entries()]
@@ -55,6 +53,23 @@ async function extractPdf(file: File, onProgress: Progress, notes: string[]) {
       });
   }
   return { lines, notes };
+}
+
+/** Tries Ollama on this laptop first; falls back to the in-browser text reader. */
+async function readImage(image: Blob, page: number, notes: string[], onP: (p: number) => void): Promise<ExtractedLine[]> {
+  try {
+    const { getSettings } = await import("@/lib/settings");
+    const { transcribeImage } = await import("@/lib/ai/model/ollama");
+    const { url, model } = getSettings().ollama;
+    onP(0.2);
+    const texts = await transcribeImage(url, model, image);
+    if (texts.length) {
+      notes.push(`Page ${page} was read by Ollama. Please check every value against the report.`);
+      return texts.map((text) => ({ text, page, confidence: null }));
+    }
+  } catch { /* Ollama not available: use the built-in reader */ }
+  notes.push(`Page ${page} was read from an image. Please check every value against the report.`);
+  return ocr(image, page, onP);
 }
 
 async function ocr(image: Blob, page: number, onP: (p: number) => void): Promise<ExtractedLine[]> {

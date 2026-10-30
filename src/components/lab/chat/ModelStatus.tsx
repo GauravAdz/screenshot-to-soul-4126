@@ -1,54 +1,20 @@
-import { Cpu, Loader2, Library } from "lucide-react";
+import { Cpu, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import type { ModelState } from "./useLocalModel";
 
-export function ModelStatus({ state, onLoad, downloadSize, label, ollama }: { state: ModelState; onLoad: () => void; downloadSize?: string | undefined; label?: string | undefined; ollama?: boolean }) {
+export function ModelStatus({ state, onLoad, label }: { state: ModelState; onLoad: () => void; downloadSize?: string | undefined; label?: string | undefined; ollama?: boolean }) {
   const box = "rounded-xl border border-border bg-card p-3 text-xs";
   switch (state.phase) {
     case "checking":
-      return <div className={box}><Loader2 className="mr-1 inline h-3 w-3 animate-spin" />Checking if this device can run AI locally…</div>;
-    case "ready":
-      return <div className={box}><Cpu className="mr-1 inline h-3.5 w-3.5 text-status-in" />{label ?? "AI"} is running on this computer. Your questions never leave it.</div>;
     case "loading":
-      return (
-        <div className={box} aria-live="polite">
-          <p><Loader2 className="mr-1 inline h-3 w-3 animate-spin" />{state.progress.label}{state.progress.pct !== null && ` · ${state.progress.pct}%`}</p>
-          {state.progress.pct !== null && <Progress value={state.progress.pct} className="mt-2 h-1.5" />}
-          <p className="mt-1.5 text-muted-foreground">Only the model files are downloaded. You can keep asking — answers use the library until it's ready.</p>
-        </div>
-      );
-    case "unsupported":
-      return (
-        <div className={box}>
-          <p className="font-medium"><Library className="mr-1 inline h-3.5 w-3.5" />Simple answers mode</p>
-          {state.support.reasons.map((r) => <p key={r} className="mt-1 text-muted-foreground">{r}</p>)}
-          <p className="mt-1 text-muted-foreground">Answers still come from your report. Nothing is sent online.</p>
-        </div>
-      );
+      return <div className={box} aria-live="polite"><Loader2 className="mr-1 inline h-3 w-3 animate-spin" />Connecting to Ollama…</div>;
+    case "ready":
+      return <div className={box}><Cpu className="mr-1 inline h-3.5 w-3.5 text-status-in" />{label ?? "Ollama"} on this laptop.</div>;
     case "error":
       return (
         <div className={box}>
-          <p className="font-medium text-destructive">{ollama ? "Ollama isn't connected" : "The AI model couldn't load"}: {state.message}</p>
-          <p className="mt-1 text-muted-foreground">Answers come from trusted health sources instead.</p>
-          <Button size="sm" variant="outline" className="mt-2" onClick={onLoad}>Try again</Button>
-        </div>
-      );
-    case "idle":
-      if (ollama)
-        return (
-          <div className={box}>
-            <p>Your Ollama model will word answers. Facts still come only from your report.</p>
-            <Button size="sm" className="mt-2 rounded-full bg-gradient-brand" onClick={onLoad}><Cpu className="h-3.5 w-3.5" /> Connect to Ollama</Button>
-          </div>
-        );
-      return (
-        <div className={box}>
-          <p><Library className="mr-1 inline h-3.5 w-3.5" />Answers come from your report and trusted health sources.</p>
-          <p className="mt-1 text-muted-foreground">
-            Optionally turn on Gemma 4 for friendlier wording. It runs entirely in this browser ({downloadSize}); your report is never sent anywhere.
-          </p>
-          <Button size="sm" className="mt-2 rounded-full bg-gradient-brand" onClick={onLoad}><Cpu className="h-3.5 w-3.5" /> Turn on on-device AI</Button>
+          <p>Start Ollama to get friendlier answers. <span className="text-muted-foreground">{state.message}</span></p>
+          <Button size="sm" variant="outline" className="mt-2" onClick={onLoad}>Retry</Button>
         </div>
       );
   }

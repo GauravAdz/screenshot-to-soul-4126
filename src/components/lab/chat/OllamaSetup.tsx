@@ -32,7 +32,7 @@ export function OllamaSetup() {
   return (
     <div className="rounded-xl border border-border bg-card text-xs">
       <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center justify-between px-3 py-2 font-medium">
-        {s.ollama.enabled ? `Using my Ollama · ${s.ollama.model}` : "Use my Ollama"}
+        {`Ollama · ${s.ollama.model}`}
         <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
       </button>
       {open && (
@@ -57,9 +57,6 @@ export function OllamaSetup() {
               </select>
               <Button size="sm" onClick={() => { updateSettings({ ollama: { enabled: true, url, model } }); setOpen(false); }}>Use it</Button>
             </div>
-          )}
-          {s.ollama.enabled && (
-            <Button size="sm" variant="ghost" onClick={() => updateSettings({ ollama: { ...s.ollama, enabled: false } })}>Stop using Ollama</Button>
           )}
         </div>
       )}

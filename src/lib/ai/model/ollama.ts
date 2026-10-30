@@ -48,8 +48,9 @@ export function createOllamaAdapter(url: string, model: string): LocalModelAdapt
     },
     async load(onProgress) {
       onProgress({ label: "Connecting to Ollama…", pct: null });
-      const models = await listOllamaModels(url);
-      if (!models.includes(model)) throw new Error(`Model "${model}" isn't installed. Run: ollama pull ${model}`);
+      let models: string[];
+      try { models = await listOllamaModels(url); } catch { throw new Error("Ollama isn't running."); }
+      if (!models.some((m) => m === model || m === `${model}:latest`)) throw new Error(`Model not downloaded — run: ollama pull ${model}`);
       loaded = true;
     },
     isLoaded: () => loaded,
@@ -80,4 +81,36 @@ export function createOllamaAdapter(url: string, model: string): LocalModelAdapt
       return out;
     },
   };
+}
+
+/** Turns an Ollama transcription reply into plain lines (drops markdown, bullets, empty lines). */
+export function replyToLines(reply: string): string[] {
+  return reply
+    .replace(/<think>[\s\S]*?(<\/think>|$)/gi, "")
+    .split("\n")
+    .map((l) => l.replace(/^\s*([-*•]|\d+[.)])\s+/, "").replace(/[*`#]+/g, "").replace(/\s*\|\s*/g, " ").trim())
+    .filter((l) => l && !/^-{3,}$/.test(l));
+}
+
+/** Asks local Ollama to copy the result lines from a page image exactly as printed. */
+export async function transcribeImage(url: string, model: string, image: Blob): Promise<string[]> {
+  if (!isLoopbackUrl(url)) throw new Error("Ollama must run on this computer.");
+  const bytes = new Uint8Array(await image.arrayBuffer());
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  const res = await fetch(`${base(url)}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model, stream: false, think: false, options: { temperature: 0 },
+      messages: [{
+        role: "user",
+        images: [btoa(bin)],
+        content: "Copy every lab test result line from this report image exactly as printed: test name, value, unit, reference range and any flag (H, L, HH, LL). One result per line, plain text, no extra words. Do not calculate, interpret or add anything not printed.",
+      }],
+    }),
+  });
+  if (!res.ok) throw new Error(`Ollama error (${res.status}).`);
+  const data = (await res.json()) as { message?: { content?: string } };
+  return replyToLines(data.message?.content ?? "");
 }
