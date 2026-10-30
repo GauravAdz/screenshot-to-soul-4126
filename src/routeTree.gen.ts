@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoRouteImport } from './routes/demo'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as UploadRouteImport } from './routes/upload'
@@ -18,6 +19,11 @@ import { Route as ReportIdRouteImport } from './routes/report.$id'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -43,6 +49,7 @@ const ReportIdRoute = ReportIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/history': typeof HistoryRoute
   '/privacy': typeof PrivacyRoute
   '/upload': typeof UploadRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/history': typeof HistoryRoute
   '/privacy': typeof PrivacyRoute
   '/upload': typeof UploadRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/demo': typeof DemoRoute
   '/history': typeof HistoryRoute
   '/privacy': typeof PrivacyRoute
   '/upload': typeof UploadRoute
@@ -65,14 +74,22 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/history' | '/privacy' | '/upload' | '/report/$id'
+  fullPaths: '/' | '/demo' | '/history' | '/privacy' | '/upload' | '/report/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/history' | '/privacy' | '/upload' | '/report/$id'
-  id: '__root__' | '/' | '/history' | '/privacy' | '/upload' | '/report/$id'
+  to: '/' | '/demo' | '/history' | '/privacy' | '/upload' | '/report/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/demo'
+    | '/history'
+    | '/privacy'
+    | '/upload'
+    | '/report/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DemoRoute: typeof DemoRoute
   HistoryRoute: typeof HistoryRoute
   PrivacyRoute: typeof PrivacyRoute
   UploadRoute: typeof UploadRoute
@@ -86,6 +103,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -121,6 +145,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DemoRoute: DemoRoute,
   HistoryRoute: HistoryRoute,
   PrivacyRoute: PrivacyRoute,
   UploadRoute: UploadRoute,
