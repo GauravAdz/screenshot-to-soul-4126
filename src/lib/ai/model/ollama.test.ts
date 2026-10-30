@@ -12,3 +12,13 @@ describe("Ollama is limited to this computer", () => {
     expect(isLoopbackUrl("http://localhost.evil.com")).toBe(false);
   });
 });
+
+import { replyToLines } from "./ollama";
+describe("replyToLines", () => {
+  it("turns an Ollama transcription into clean result lines", () => {
+    expect(replyToLines("<think>x</think>- **Hemoglobin** 13.5 g/dL 12.0-16.0\n\n2. Glucose | 110 | mg/dL | 70-99 | H\n---")).toEqual([
+      "Hemoglobin 13.5 g/dL 12.0-16.0",
+      "Glucose 110 mg/dL 70-99 H",
+    ]);
+  });
+});
