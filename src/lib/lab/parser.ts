@@ -48,14 +48,21 @@ export function parseRange(s: string): { low: number | null; high: number | null
   return { low: null, high: null };
 }
 
+const CRITICAL_RE = /\(?\b(critical|panic)\b\)?|!!/gi;
+/** Only the lab's own wording counts as critical; the app never decides this itself. */
+export const hasCriticalMarker = (s: string) => /\b(critical|panic)\b|!!/i.test(s);
+
 let counter = 0;
 export const newId = () =>
   typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `r${Date.now()}${counter++}`;
 
 export function parseLine(line: ExtractedLine): LabResult | null {
-  const text = line.text.replace(/\s+/g, " ").trim();
-  if (text.length < 3 || SKIP.test(text)) return null;
+  const original = line.text.replace(/\s+/g, " ").trim();
+  if (original.length < 3 || SKIP.test(original)) return null;
   const lowConf = line.confidence !== null && line.confidence < 75;
+  const marked = hasCriticalMarker(original);
+  // Strip lab "critical" markers so the row still parses; the marker is kept as a separate fact.
+  const text = marked ? original.replace(CRITICAL_RE, " ").replace(/\s+/g, " ").trim() : original;
 
   const m = text.match(LINE_RE);
   if (m) {
@@ -74,10 +81,11 @@ export function parseLine(line: ExtractedLine): LabResult | null {
       rangeHigh: r.high,
       rangeUnit: "",
       flag: parseFlag(f1 ?? f2 ?? f3),
+      critical: marked || /\b(HH|LL)\b/.test(`${f1 ?? ""} ${f2 ?? ""} ${f3 ?? ""}`),
       page: line.page,
       confidence: line.confidence,
       needsReview: lowConf,
-      sourceLine: text,
+      sourceLine: original,
     };
   }
   const q = text.match(QUAL_RE);
@@ -94,10 +102,11 @@ export function parseLine(line: ExtractedLine): LabResult | null {
       rangeHigh: null,
       rangeUnit: "",
       flag: null,
+      critical: marked,
       page: line.page,
       confidence: line.confidence,
       needsReview: lowConf,
-      sourceLine: text,
+      sourceLine: original,
     };
   }
   return null;

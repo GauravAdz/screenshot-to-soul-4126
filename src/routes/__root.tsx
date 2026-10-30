@@ -13,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/lab/SiteHeader";
+import { VoicePlayer } from "@/components/lab/voice/VoicePlayer";
+import { useSettings } from "@/lib/settings";
 
 function NotFoundComponent() {
   return (
@@ -111,14 +113,25 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function ThemeSync() {
+  const { theme } = useSettings();
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <ThemeSync />
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2">Skip to content</a>
       <SiteHeader />
-      <Outlet />
+      <div id="main" className="pb-24"><Outlet /></div>
+      <VoicePlayer />
     </QueryClientProvider>
   );
 }

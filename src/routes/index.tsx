@@ -17,7 +17,7 @@ export const Route = createFileRoute("/")({
 });
 
 const FEATURES = [
-  { icon: HardDrive, t: "Stays on your device", d: "Reports are read in your browser and stored encrypted locally. Nothing is uploaded." },
+  { icon: HardDrive, t: "Stays on your device", d: "Reports are read, explained and spoken in your browser and stored encrypted locally. Nothing is uploaded." },
   { icon: Eye, t: "You verify every value", d: "Check and correct what we read before anything is explained." },
   { icon: LineChart, t: "Clear, honest results", d: "See where each value sits in your lab's own range — and what we're unsure about." },
 ];
@@ -41,6 +41,9 @@ function Index() {
           </Button>
           <Button asChild size="lg" variant="outline" className="rounded-full">
             <Link to="/upload" search={{ sample: true }}>Try a sample report</Link>
+          </Button>
+          <Button asChild size="lg" variant="ghost" className="rounded-full">
+            <Link to="/demo">Guided demo</Link>
           </Button>
         </div>
       </section>

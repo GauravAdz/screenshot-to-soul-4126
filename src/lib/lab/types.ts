@@ -16,6 +16,8 @@ export interface LabResult {
   /** Unit the range applies to; empty means "same row as the value". */
   rangeUnit: string;
   flag: LabFlag;
+  /** True only when the lab itself marked the result critical/panic (or HH/LL). */
+  critical?: boolean;
   /** 1-based source page; null for manually added rows. */
   page: number | null;
   /** OCR confidence 0-100 when applicable. */
