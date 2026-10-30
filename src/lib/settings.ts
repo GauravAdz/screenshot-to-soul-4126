@@ -8,6 +8,8 @@ export interface Settings {
   cloudVoiceConsent: { given: boolean; at: number | null };
   speed: number;
   autoSpeakAnswers: boolean;
+  /** Use the user's own Ollama on this computer (localhost only) for wording answers. */
+  ollama: { enabled: boolean; url: string; model: string };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cloudVoiceConsent: { given: false, at: null },
   speed: 1,
   autoSpeakAnswers: false,
+  ollama: { enabled: false, url: "http://localhost:11434", model: "" },
 };
 
 const KEY = "clearlab-settings";
