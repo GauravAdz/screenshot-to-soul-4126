@@ -29,3 +29,17 @@ export function validateModelText(text: string, a: Answer): { ok: boolean; probl
   for (const [re, why] of BANNED) if (re.test(text)) problems.push(why);
   return { ok: problems.length === 0, problems };
 }
+
+/**
+ * Tidies raw model output before validation: drops reasoning blocks, markdown, preambles,
+ * and follow-up questions back to the user, and keeps at most 4 sentences.
+ */
+export function cleanModelText(raw: string): string {
+  let t = raw.replace(/<think>[\s\S]*?(<\/think>|$)/gi, "");
+  t = t.replace(/```[\s\S]*?```/g, "").replace(/[*_#`>]+/g, "").replace(/^\s*[-•\d.)]+\s+/gm, "");
+  for (let i = 0; i < 3; i++) t = t.replace(/^\s*(sure|okay|ok|of course|certainly|great question|here('s| is)[^.:!\n]*)[,:.!]?\s*/i, "");
+  const sentences = (t.replace(/\s+/g, " ").trim().match(/[^.!?]+[.!?]+/g) ?? [t.trim()])
+    .map((s) => s.trim())
+    .filter((s) => s && !s.endsWith("?") && !/\b(let me know|feel free|i hope this|as an ai|i'm not a doctor)\b/i.test(s));
+  return sentences.slice(0, 4).join(" ").trim();
+}

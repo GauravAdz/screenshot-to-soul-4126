@@ -2,7 +2,7 @@ import type { LabReport } from "@/lib/lab/types";
 import { buildGroundedAnswer, type Answer } from "./answer";
 import type { TextGenerator } from "./model/types";
 import { buildPrompt } from "./prompt";
-import { validateModelText } from "./validate";
+import { cleanModelText, validateModelText } from "./validate";
 
 /** Intents where model rewording adds value; others are answered directly from structured data. */
 const MODEL_INTENTS = new Set(["explain", "general", "out_of_range"]);
@@ -26,7 +26,7 @@ export async function answerQuestion(
     return a;
   }
   try {
-    const text = await model.generate(buildPrompt(question, a), onToken);
+    const text = cleanModelText(await model.generate(buildPrompt(question, a), onToken));
     const v = validateModelText(text, a);
     if (!v.ok) {
       return { ...a, modelNote: `The AI's wording was not used because it ${v.problems.join(" and ")}. Showing the library explanation instead.` };

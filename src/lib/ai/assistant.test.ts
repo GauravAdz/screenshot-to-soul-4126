@@ -132,3 +132,11 @@ describe("model layer", () => {
     expect(isAllowedModelRequest("http://huggingface.co/x")).toBe(false);
   });
 });
+
+import { cleanModelText } from "./validate";
+describe("cleanModelText", () => {
+  it("removes thinking, markdown, preambles and questions back to the user", () => {
+    const raw = "<think>hmm</think>Sure! Here is the answer:\n**Hemoglobin** is within range. It carries oxygen. Would you like to know more? Let me know if you have questions.";
+    expect(cleanModelText(raw)).toBe("Hemoglobin is within range. It carries oxygen.");
+  });
+});
