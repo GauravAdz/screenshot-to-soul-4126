@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { LoadProgress, LocalModelAdapter, SupportReport } from "@/lib/ai/model/types";
+import { useSettings } from "@/lib/settings";
 
 export type ModelState =
   | { phase: "checking" }
@@ -9,17 +10,31 @@ export type ModelState =
   | { phase: "ready" }
   | { phase: "error"; message: string };
 
-// One adapter per page session so the model stays loaded across reports.
-let adapterPromise: Promise<LocalModelAdapter> | null = null;
-const getAdapter = () => (adapterPromise ??= import("@/lib/ai/model/gemma").then((m) => m.createGemmaAdapter()));
+// One adapter per choice per page session so models stay loaded across reports.
+const adapters = new Map<string, Promise<LocalModelAdapter>>();
+function getAdapter(key: string, url: string, model: string) {
+  let p = adapters.get(key);
+  if (!p) {
+    p = key === "gemma"
+      ? import("@/lib/ai/model/gemma").then((m) => m.createGemmaAdapter())
+      : import("@/lib/ai/model/ollama").then((m) => m.createOllamaAdapter(url, model));
+    adapters.set(key, p);
+  }
+  return p;
+}
 
 export function useLocalModel() {
+  const s = useSettings();
+  const { enabled, url, model } = s.ollama;
+  const key = enabled ? `ollama|${url}|${model}` : "gemma";
   const [state, setState] = useState<ModelState>({ phase: "checking" });
   const [adapter, setAdapter] = useState<LocalModelAdapter | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    getAdapter().then(async (a) => {
+    setState({ phase: "checking" });
+    setAdapter(null);
+    getAdapter(key, url, model).then(async (a) => {
       if (cancelled) return;
       setAdapter(a);
       if (a.isLoaded()) return setState({ phase: "ready" });
@@ -27,7 +42,7 @@ export function useLocalModel() {
       if (!cancelled) setState(support.supported ? { phase: "idle", support } : { phase: "unsupported", support });
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [key, url, model]);
 
   const load = useCallback(async () => {
     if (!adapter) return;
@@ -40,5 +55,5 @@ export function useLocalModel() {
     }
   }, [adapter]);
 
-  return { state, adapter, ready: state.phase === "ready" && !!adapter, load };
+  return { state, adapter, ready: state.phase === "ready" && !!adapter, load, usingOllama: enabled };
 }

@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { ModelState } from "./useLocalModel";
 
-export function ModelStatus({ state, onLoad, downloadSize }: { state: ModelState; onLoad: () => void; downloadSize?: string | undefined }) {
+export function ModelStatus({ state, onLoad, downloadSize, label, ollama }: { state: ModelState; onLoad: () => void; downloadSize?: string | undefined; label?: string | undefined; ollama?: boolean }) {
   const box = "rounded-xl border border-border bg-card p-3 text-xs";
   switch (state.phase) {
     case "checking":
       return <div className={box}><Loader2 className="mr-1 inline h-3 w-3 animate-spin" />Checking if this device can run AI locally…</div>;
     case "ready":
-      return <div className={box}><Cpu className="mr-1 inline h-3.5 w-3.5 text-status-in" />Gemma 4 is running on this device. Your questions never leave it.</div>;
+      return <div className={box}><Cpu className="mr-1 inline h-3.5 w-3.5 text-status-in" />{label ?? "AI"} is running on this computer. Your questions never leave it.</div>;
     case "loading":
       return (
         <div className={box} aria-live="polite">
@@ -29,12 +29,19 @@ export function ModelStatus({ state, onLoad, downloadSize }: { state: ModelState
     case "error":
       return (
         <div className={box}>
-          <p className="font-medium text-destructive">The AI model couldn't load: {state.message}</p>
+          <p className="font-medium text-destructive">{ollama ? "Ollama isn't connected" : "The AI model couldn't load"}: {state.message}</p>
           <p className="mt-1 text-muted-foreground">Answers come from trusted health sources instead.</p>
           <Button size="sm" variant="outline" className="mt-2" onClick={onLoad}>Try again</Button>
         </div>
       );
     case "idle":
+      if (ollama)
+        return (
+          <div className={box}>
+            <p>Your Ollama model will word answers. Facts still come only from your report.</p>
+            <Button size="sm" className="mt-2 rounded-full bg-gradient-brand" onClick={onLoad}><Cpu className="h-3.5 w-3.5" /> Connect to Ollama</Button>
+          </div>
+        );
       return (
         <div className={box}>
           <p><Library className="mr-1 inline h-3.5 w-3.5" />Answers come from your report and trusted health sources.</p>
