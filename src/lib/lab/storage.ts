@@ -14,10 +14,12 @@ interface KeyRow {
 
 class LabDB extends Dexie {
   reports!: Table<EncryptedRow, string>;
+  chats!: Table<EncryptedRow, string>;
   keys!: Table<KeyRow, string>;
   constructor() {
     super("lab-explainer");
     this.version(1).stores({ reports: "id, createdAt", keys: "id" });
+    this.version(2).stores({ reports: "id, createdAt", keys: "id", chats: "id, createdAt" });
   }
 }
 
@@ -33,18 +35,33 @@ async function getKey(): Promise<CryptoKey> {
   return key;
 }
 
-export async function saveReport(report: LabReport) {
+async function encrypt(id: string, createdAt: number, value: unknown): Promise<EncryptedRow> {
   const key = await getKey();
   const iv = crypto.getRandomValues(new Uint8Array(12));
-  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(report)));
-  await getDb().reports.put({ id: report.id, createdAt: report.createdAt, iv, cipher });
+  const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(value)));
+  return { id, createdAt, iv, cipher };
 }
 
-async function decrypt(row: EncryptedRow): Promise<LabReport> {
+async function decryptAny<T>(row: EncryptedRow): Promise<T> {
   const key = await getKey();
   const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: row.iv as BufferSource }, key, row.cipher);
   return JSON.parse(new TextDecoder().decode(plain));
 }
+const decrypt = (row: EncryptedRow) => decryptAny<LabReport>(row);
+
+export async function saveReport(report: LabReport) {
+  await getDb().reports.put(await encrypt(report.id, report.createdAt, report));
+}
+
+/** Chat history per report, encrypted with the same on-device key. */
+export async function saveChat<T>(reportId: string, messages: T[]) {
+  await getDb().chats.put(await encrypt(reportId, Date.now(), messages));
+}
+export async function loadChat<T>(reportId: string): Promise<T[]> {
+  const row = await getDb().chats.get(reportId);
+  return row ? decryptAny<T[]>(row) : [];
+}
+export const deleteChat = (reportId: string) => getDb().chats.delete(reportId);
 
 export async function getReport(id: string) {
   const row = await getDb().reports.get(id);
@@ -56,7 +73,10 @@ export async function listReports(): Promise<LabReport[]> {
   return Promise.all(rows.map(decrypt));
 }
 
-export const deleteReport = (id: string) => getDb().reports.delete(id);
+export const deleteReport = async (id: string) => {
+  await getDb().reports.delete(id);
+  await getDb().chats.delete(id);
+};
 
 export function exportReport(r: LabReport) {
   const blob = new Blob([JSON.stringify(r, null, 2)], { type: "application/json" });
