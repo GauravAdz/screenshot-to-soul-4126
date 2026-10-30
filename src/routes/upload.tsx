@@ -12,7 +12,10 @@ import type { ExtractedLine, LabResult } from "@/lib/lab/types";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/upload")({
-  validateSearch: (s: Record<string, unknown>): { sample?: boolean } => (s["sample"] ? { sample: true } : {}),
+  validateSearch: (s: Record<string, unknown>): { sample?: boolean; demo?: string } => ({
+    ...(s["sample"] ? { sample: true } : {}),
+    ...(typeof s["demo"] === "string" && DEMO_PDFS.includes(s["demo"]) ? { demo: s["demo"] } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Upload a lab report — Clearlab" },
@@ -26,10 +29,13 @@ export const Route = createFileRoute("/upload")({
   component: UploadPage,
 });
 
+/** Synthetic PDFs served from /demo-reports — processed with the real PDF pipeline. */
+export const DEMO_PDFS = ["baseline-2025-09", "followup-2026-03", "critical-flag-2026-04"];
+
 type Stage = "pick" | "working" | "verify";
 
 function UploadPage() {
-  const { sample } = Route.useSearch();
+  const { sample, demo } = Route.useSearch();
   const navigate = useNavigate();
   const [stage, setStage] = useState<Stage>("pick");
   const [progress, setProgress] = useState({ msg: "", pct: 0 });
@@ -54,6 +60,15 @@ function UploadPage() {
   useEffect(() => {
     if (sample) finish(sampleLines(), "Synthetic sample report", ["This is a synthetic sample report for demonstration."]);
   }, [sample, finish]);
+
+  useEffect(() => {
+    if (!demo) return;
+    fetch(`/demo-reports/${demo}.pdf`)
+      .then((r) => { if (!r.ok) throw new Error("Demo file missing"); return r.blob(); })
+      .then((b) => handleFile(new File([b], `${demo}.pdf`, { type: "application/pdf" })))
+      .catch((e) => setError(e instanceof Error ? e.message : "Couldn't load the demo report."));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo]);
 
   const handleFile = async (file: File) => {
     setError(null);
@@ -123,6 +138,12 @@ function UploadPage() {
             <Button variant="outline" className="rounded-full" onClick={() => finish(sampleLines(), "Synthetic sample report", ["This is a synthetic sample report for demonstration."])}>
               Use sample report
             </Button>
+          </div>
+          <div className="mt-4 flex flex-wrap justify-center gap-2 text-xs text-muted-foreground">
+            Synthetic PDFs:
+            {DEMO_PDFS.map((d) => (
+              <button key={d} className="underline hover:text-foreground" onClick={() => navigate({ to: "/upload", search: { demo: d } })}>{d}</button>
+            ))}
           </div>
           <input
             ref={inputRef}
