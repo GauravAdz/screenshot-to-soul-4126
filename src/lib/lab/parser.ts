@@ -106,7 +106,7 @@ export function parseLine(line: ExtractedLine): LabResult | null {
       page: line.page,
       confidence: line.confidence,
       needsReview: lowConf,
-      sourceLine: text,
+      sourceLine: original,
     };
   }
   return null;
