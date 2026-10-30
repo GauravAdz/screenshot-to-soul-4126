@@ -80,15 +80,15 @@ export function parseLine(line: ExtractedLine): LabResult | null {
     };
   }
   const q = text.match(QUAL_RE);
-  if (q && !SKIP.test(q[1])) {
+  if (q && q[1] && !SKIP.test(q[1])) {
     return {
       id: newId(),
       name: q[1].trim(),
-      valueRaw: q[2],
+      valueRaw: q[2] ?? "",
       value: null,
       comparator: null,
       unit: "",
-      rangeRaw: q[3].trim(),
+      rangeRaw: (q[3] ?? "").trim(),
       rangeLow: null,
       rangeHigh: null,
       rangeUnit: "",
