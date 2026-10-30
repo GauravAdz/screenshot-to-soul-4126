@@ -21,23 +21,23 @@ export function ModelStatus({ state, onLoad, downloadSize }: { state: ModelState
     case "unsupported":
       return (
         <div className={box}>
-          <p className="font-medium"><Library className="mr-1 inline h-3.5 w-3.5" />On-device AI isn't available here</p>
+          <p className="font-medium"><Library className="mr-1 inline h-3.5 w-3.5" />Simple answers mode</p>
           {state.support.reasons.map((r) => <p key={r} className="mt-1 text-muted-foreground">{r}</p>)}
-          <p className="mt-1 text-muted-foreground">Answers come from your report and the reference library instead. Nothing is sent online.</p>
+          <p className="mt-1 text-muted-foreground">Answers still come from your report. Nothing is sent online.</p>
         </div>
       );
     case "error":
       return (
         <div className={box}>
           <p className="font-medium text-destructive">The AI model couldn't load: {state.message}</p>
-          <p className="mt-1 text-muted-foreground">Answers come from the reference library instead.</p>
+          <p className="mt-1 text-muted-foreground">Answers come from trusted health sources instead.</p>
           <Button size="sm" variant="outline" className="mt-2" onClick={onLoad}>Try again</Button>
         </div>
       );
     case "idle":
       return (
         <div className={box}>
-          <p><Library className="mr-1 inline h-3.5 w-3.5" />Answers come from your report and the reference library.</p>
+          <p><Library className="mr-1 inline h-3.5 w-3.5" />Answers come from your report and trusted health sources.</p>
           <p className="mt-1 text-muted-foreground">
             Optionally turn on Gemma 4 for friendlier wording. It runs entirely in this browser ({downloadSize}); your report is never sent anywhere.
           </p>

@@ -38,7 +38,7 @@ export function VoicePlayer() {
           {p.status === "playing" && <Button size="icon" variant="ghost" aria-label="Pause" onClick={pause}><Pause className="h-4 w-4" /></Button>}
           {p.status === "paused" && <Button size="icon" variant="ghost" aria-label="Play" onClick={resume}><Play className="h-4 w-4" /></Button>}
           {(p.status === "playing" || p.status === "paused") && <Button size="icon" variant="ghost" aria-label="Replay" onClick={replay}><RotateCcw className="h-4 w-4" /></Button>}
-          {p.status === "error" && p.text && p.label && <Button size="sm" variant="outline" onClick={() => speak(p.text!, p.label!)}>Try again</Button>}
+          {p.status === "error" && p.text && p.label && <Button size="sm" variant="outline" onClick={() => speak(p.text!, p.label!)}>Retry</Button>}
           <label className="sr-only" htmlFor="voice-speed">Playback speed</label>
           <select
             id="voice-speed"

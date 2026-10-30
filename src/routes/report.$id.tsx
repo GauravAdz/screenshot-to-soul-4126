@@ -99,7 +99,7 @@ function ReportPage() {
 
       <div className={cn("mt-6 grid gap-6", chatOpen && wide && "grid-cols-[minmax(0,1fr)_420px]")}>
         <div className="min-w-0 space-y-6">
-          <ReportOverview report={report} onJump={jump} />
+          <div className="mx-auto max-w-2xl space-y-4"><ReportOverview report={report} onJump={jump} />
 
           <div className="flex flex-wrap gap-2" role="group" aria-label="Filter results">
             <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>All · {withStatus.length}</FilterChip>
@@ -113,8 +113,9 @@ function ReportPage() {
               {report.limitations.map((l) => <p key={l} className="flex gap-2"><Info className="mt-0.5 h-4 w-4 shrink-0" />{l}</p>)}
             </div>
           )}
+          </div>
 
-          <section aria-label="Results" className={cn("grid gap-4 sm:grid-cols-2", !(chatOpen && wide) && "lg:grid-cols-3")}>
+          <section aria-label="Results" className="mx-auto flex max-w-2xl flex-col gap-4">
             {shown.map(({ r }, i) => (
               <div key={r.id} id={`card-${r.id}`} className="scroll-mt-24">
                 <ResultCard r={r} index={i} trend={trendFor(r, report, all)} onExplain={explainR} onFollowUp={followR} />
@@ -122,9 +123,6 @@ function ReportPage() {
             ))}
           </section>
 
-          <p className="text-center text-xs text-muted-foreground">
-            "Within Range" only means the value is inside the range printed by your lab — it doesn't mean everything is fine, and outside doesn't mean something is wrong. Talk to your clinician about your results.
-          </p>
         </div>
 
         {chatOpen && wide && (
@@ -132,7 +130,7 @@ function ReportPage() {
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <div>
                 <h2 className="text-lg font-semibold">Ask about your results</h2>
-                <p className="text-xs text-muted-foreground">Facts come only from your report. Everything stays on this device.</p>
+                <p className="text-xs text-muted-foreground">Answers use only your report. Stays on this device.</p>
               </div>
               <Button size="icon" variant="ghost" aria-label="Close questions" onClick={() => setChatOpen(false)}><X className="h-4 w-4" /></Button>
             </div>
@@ -146,7 +144,7 @@ function ReportPage() {
           <SheetContent className="flex w-full flex-col gap-0 p-0 sm:max-w-lg">
             <SheetHeader className="border-b border-border p-4">
               <SheetTitle>Ask about your results</SheetTitle>
-              <SheetDescription>Facts come only from your report. Everything stays on this device.</SheetDescription>
+              <SheetDescription>Answers use only your report. Stays on this device.</SheetDescription>
             </SheetHeader>
             <div className="min-h-0 flex-1">{panel}</div>
           </SheetContent>

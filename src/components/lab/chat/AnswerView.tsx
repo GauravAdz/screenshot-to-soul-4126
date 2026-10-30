@@ -17,37 +17,37 @@ function Section({ title, icon: Icon, children, tone = "default" }: { title: str
 export function AnswerView({ a, streaming, onAsk }: { a: Answer; streaming?: string | undefined; onAsk: (q: string) => void }) {
   const [more, setMore] = useState(false);
   const [evidence, setEvidence] = useState(false);
-  const hasMore = a.known.length + a.unknown.length + a.doctorQuestions.length > 0;
+  const hasMore = a.known.length + a.unknown.length + a.doctorQuestions.length > 0 || a.meaning.length > 1;
 
   return (
     <div className="space-y-2.5">
       <p className="text-sm leading-relaxed">{a.summary}</p>
 
       {a.yourResult.length > 0 && (
-        <Section title="Your result · from your report" icon={FileText} tone="report">
+        <Section title="Your result" icon={FileText} tone="report">
           {a.yourResult.map((f) => <p key={f.observation.resultId + f.observation.reportId}>{f.text}</p>)}
         </Section>
       )}
 
       {(a.meaning.length > 0 || streaming !== undefined) && (
-        <Section title="What it means · general information" icon={BookOpen}>
+        <Section title="What it means" icon={BookOpen}>
           {streaming !== undefined && a.generatedBy === "library" ? (
             <p className="italic text-muted-foreground">{streaming || "Writing a plain-language explanation…"}</p>
           ) : (
-            a.meaning.map((m) => <p key={m}>{m}</p>)
+            (more ? a.meaning : a.meaning.slice(0, 1)).map((m) => <p key={m}>{m}</p>)
           )}
         </Section>
       )}
 
       {hasMore && (
         <button onClick={() => setMore((m) => !m)} aria-expanded={more} className="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
-          {more ? "Fewer details" : "More details"} <ChevronDown className={cn("h-4 w-4 transition-transform", more && "rotate-180")} />
+          {more ? "Show less" : "Tell me more"} <ChevronDown className={cn("h-4 w-4 transition-transform", more && "rotate-180")} />
         </button>
       )}
       {more && (
         <div className="fade-up space-y-2.5">
           {(a.known.length > 0 || a.unknown.length > 0) && (
-            <Section title="What we know and don't know" icon={HelpCircle}>
+            <Section title="Good to know" icon={HelpCircle}>
               {a.known.map((k) => <p key={k}>• {k}</p>)}
               {a.unknown.map((k) => <p key={k} className="text-muted-foreground">? {k}</p>)}
             </Section>
@@ -86,7 +86,7 @@ export function AnswerView({ a, streaming, onAsk }: { a: Answer; streaming?: str
 
       <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
         {a.generatedBy === "model" ? <Cpu className="h-3 w-3" /> : <Library className="h-3 w-3" />}
-        {a.modelNote ?? (a.generatedBy === "model" ? "Worded by on-device AI." : "Answered from your report and the reference library.")}
+        {a.generatedBy === "model" ? "Worded on your device" : "From your report"}
       </p>
 
       {a.followUps.length > 0 && (

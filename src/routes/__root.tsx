@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/lab/SiteHeader";
 import { VoicePlayer } from "@/components/lab/voice/VoicePlayer";
+import { DISCLAIMER } from "@/lib/lab/disclaimer";
 import { useSettings } from "@/lib/settings";
 
 function NotFoundComponent() {
@@ -130,7 +131,8 @@ function RootComponent() {
       <ThemeSync />
       <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2">Skip to content</a>
       <SiteHeader />
-      <div id="main" className="pb-24"><Outlet /></div>
+      <div id="main"><Outlet /></div>
+      <footer className="mx-auto max-w-3xl px-4 pb-28 pt-6 text-center text-xs text-muted-foreground">{DISCLAIMER}</footer>
       <VoicePlayer />
     </QueryClientProvider>
   );

@@ -92,7 +92,7 @@ function UploadPage() {
     setSaving(true);
     const unresolved = rows.filter((r) => r.needsReview).length;
     const limitations = [...notes];
-    if (unparsed.length) limitations.push(`${unparsed.length} line(s) looked like results but could not be read automatically.`);
+    if (unparsed.length) limitations.push(`${unparsed.length} line(s) need another look.`);
     if (unresolved) limitations.push(`${unresolved} value(s) were saved without being confirmed.`);
     const id = newId();
     await saveReport({
