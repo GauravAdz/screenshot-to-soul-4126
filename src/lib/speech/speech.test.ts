@@ -61,7 +61,7 @@ describe("trends", () => {
 describe("narration", () => {
   it("never speaks numbers that aren't on the report", () => {
     const f = followup();
-    for (const r of f.results) expect(inventedNumbers(resultNarration(r), `${r.valueRaw} ${r.rangeRaw}`)).toEqual([]);
+    for (const r of f.results) expect(inventedNumbers(resultNarration(r), `${r.name} ${r.valueRaw} ${r.unit} ${r.rangeRaw}`)).toEqual([]);
     const a = buildGroundedAnswer("Can you explain my hemoglobin?", f);
     expect(inventedNumbers(answerNarration(a), a.yourResult.map((x) => x.text).join(" "))).toEqual([]);
     expect(answerNarration(a)).toContain("11.2");
