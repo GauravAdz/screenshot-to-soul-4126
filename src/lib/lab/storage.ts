@@ -86,3 +86,30 @@ export function exportReport(r: LabReport) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
+
+export async function storageCounts() {
+  const d = getDb();
+  return { reports: await d.reports.count(), chats: await d.chats.count() };
+}
+
+export async function listChatsRaw<T>(): Promise<{ reportId: string; messages: T[] }[]> {
+  const rows = await getDb().chats.toArray();
+  return Promise.all(rows.map(async (r) => ({ reportId: r.id, messages: await decryptAny<T[]>(r) })));
+}
+
+/** Delete every report, chat, the device key, settings and downloaded model files. */
+export async function wipeAllLocalData() {
+  if (db) db.close();
+  db = null;
+  await Dexie.delete("lab-explainer");
+  try { localStorage.clear(); sessionStorage.clear(); } catch { /* ignore */ }
+  await clearModelCaches();
+}
+
+/** Model weights are kept by the browser in Cache Storage (Transformers.js uses "transformers-cache"). */
+export async function clearModelCaches() {
+  if (typeof caches === "undefined") return 0;
+  const names = await caches.keys();
+  await Promise.all(names.map((n) => caches.delete(n)));
+  return names.length;
+}
