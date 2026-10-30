@@ -13,7 +13,8 @@ self.onmessage = async (e: MessageEvent) => {
   const m = e.data;
   try {
     if (m.type === "load") {
-      const { KokoroTTS } = await import("kokoro-js");
+      // The self-contained web build avoids bundler issues with its embedded eSpeak data.
+      const { KokoroTTS } = (await import(/* @vite-ignore */ "../../../node_modules/kokoro-js/dist/kokoro.web.js")) as typeof import("kokoro-js");
       const gpu = (self.navigator as Navigator & { gpu?: { requestAdapter(): Promise<unknown> } }).gpu;
       const webgpu = !!(gpu && (await gpu.requestAdapter().catch(() => null)));
       tts = await KokoroTTS.from_pretrained(MODEL_ID, {
