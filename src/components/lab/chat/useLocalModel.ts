@@ -39,10 +39,20 @@ export function useLocalModel() {
       setAdapter(a);
       if (a.isLoaded()) return setState({ phase: "ready" });
       const support = await a.checkSupport();
-      if (!cancelled) setState(support.supported ? { phase: "idle", support } : { phase: "unsupported", support });
+      if (cancelled) return;
+      if (!support.supported) return setState({ phase: "unsupported", support });
+      if (!enabled) return setState({ phase: "idle", support });
+      // Ollama is already on this computer, so connect right away.
+      setState({ phase: "loading", progress: { label: "Connecting to Ollama…", pct: null } });
+      try {
+        await a.load((progress) => !cancelled && setState({ phase: "loading", progress }));
+        if (!cancelled) setState({ phase: "ready" });
+      } catch (e) {
+        if (!cancelled) setState({ phase: "error", message: e instanceof Error ? e.message : "Could not connect to Ollama." });
+      }
     });
     return () => { cancelled = true; };
-  }, [key, url, model]);
+  }, [key, url, model, enabled]);
 
   const load = useCallback(async () => {
     if (!adapter) return;

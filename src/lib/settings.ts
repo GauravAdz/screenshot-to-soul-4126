@@ -18,7 +18,7 @@ export const DEFAULT_SETTINGS: Settings = {
   cloudVoiceConsent: { given: false, at: null },
   speed: 1,
   autoSpeakAnswers: false,
-  ollama: { enabled: false, url: "http://localhost:11434", model: "" },
+  ollama: { enabled: true, url: "http://localhost:11434", model: "medgemma1.5:4b" },
 };
 
 const KEY = "clearlab-settings";
@@ -30,6 +30,8 @@ export function getSettings(): Settings {
   if (typeof localStorage === "undefined") return DEFAULT_SETTINGS;
   try {
     cache = { ...DEFAULT_SETTINGS, ...JSON.parse(localStorage.getItem(KEY) ?? "{}") };
+    // Older saved settings had no Ollama model; use the default Ollama setup instead.
+    if (!cache!.ollama?.model) cache = { ...cache!, ollama: DEFAULT_SETTINGS.ollama };
   } catch {
     cache = DEFAULT_SETTINGS;
   }
