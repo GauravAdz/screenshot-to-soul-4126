@@ -64,7 +64,7 @@ export function parseLine(line: ExtractedLine): LabResult | null {
     const comparator = (cmp ? cmp.replace("≤", "<=").replace("≥", ">=") : null) as Comparator;
     return {
       id: newId(),
-      name: name.trim(),
+      name: (name ?? "").trim(),
       valueRaw: `${cmp ?? ""}${val}`,
       value: toNum(val),
       comparator,
